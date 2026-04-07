@@ -1,0 +1,157 @@
+/* ── NSE Options Trader Dashboard — Global Styles ───────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* Color palette */
+  --bg-base:       #0a0d14;
+  --bg-surface:    #111827;
+  --bg-card:       #161e2e;
+  --bg-card-hover: #1e2940;
+  --border:        rgba(99, 115, 149, 0.2);
+  --border-bright: rgba(99, 115, 149, 0.5);
+
+  /* Accent colors */
+  --accent-blue:   #3b82f6;
+  --accent-green:  #10b981;
+  --accent-red:    #ef4444;
+  --accent-yellow: #f59e0b;
+  --accent-purple: #8b5cf6;
+  --accent-cyan:   #06b6d4;
+
+  /* Text */
+  --text-primary:   #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted:     #475569;
+
+  /* Gradients */
+  --gradient-header: linear-gradient(135deg, #1e3a5f 0%, #0a0d14 100%);
+  --gradient-profit: linear-gradient(135deg, #065f46, #064e3b);
+  --gradient-loss:   linear-gradient(135deg, #7f1d1d, #450a0a);
+
+  /* Font */
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Spacing */
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* ── Utilities ─────────────────────────────────────────────────────────── */
+
+.mono { font-family: var(--font-mono); }
+.text-green { color: var(--accent-green) !important; }
+.text-red   { color: var(--accent-red) !important; }
+.text-muted { color: var(--text-secondary); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-blue); }
+
+/* ── Card ───────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+  border-color: var(--border-bright);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Badge ──────────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.badge-green  { background: rgba(16,185,129,0.15); color: var(--accent-green); border: 1px solid rgba(16,185,129,0.3); }
+.badge-red    { background: rgba(239,68,68,0.15);  color: var(--accent-red);   border: 1px solid rgba(239,68,68,0.3); }
+.badge-blue   { background: rgba(59,130,246,0.15); color: var(--accent-blue);  border: 1px solid rgba(59,130,246,0.3); }
+.badge-yellow { background: rgba(245,158,11,0.15); color: var(--accent-yellow);border: 1px solid rgba(245,158,11,0.3); }
+.badge-purple { background: rgba(139,92,246,0.15); color: var(--accent-purple);border: 1px solid rgba(139,92,246,0.3); }
+
+/* ── Table ──────────────────────────────────────────────────────────────── */
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-sm);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+td {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(99, 115, 149, 0.1);
+  font-size: 13px;
+  white-space: nowrap;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+/* ── Animations ─────────────────────────────────────────────────────────── */
+@keyframes pulse-green {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+@keyframes slide-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+.animate-in { animation: slide-in-up 0.3s ease forwards; }
+.live-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent-green);
+  animation: pulse-green 2s ease-in-out infinite;
+}

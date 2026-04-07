@@ -1,0 +1,52 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# Risk Management Configuration
+# ══════════════════════════════════════════════════════════════════════════════
+
+# ── Capital ───────────────────────────────────────────────────────────────────
+capital:
+  total_capital_inr: 500000          # Override with TOTAL_CAPITAL env var
+  margin_utilization_max_pct: 80     # Never use more than 80% as margin
+
+# ── Per-Trade Limits ──────────────────────────────────────────────────────────
+per_trade:
+  max_risk_pct: 2.0                  # Max % of capital to risk on one trade
+  max_premium_paid_pct: 5.0          # Max % of capital as premium per trade
+  max_position_size_pct: 20.0        # Max single position as % of total capital
+  min_risk_reward_ratio: 1.5         # Minimum R:R before entering
+
+# ── Portfolio Limits ──────────────────────────────────────────────────────────
+portfolio:
+  max_open_positions: 5
+  max_same_underlying_positions: 2   # Don't over-concentrate on NIFTY or BANKNIFTY
+  max_net_delta: 50                  # Absolute net delta limit (in points equivalent)
+  max_net_vega: 10000                # Absolute net vega limit
+  max_net_theta: -5000               # Negative theta limit (don't be too short theta)
+
+# ── Daily / Session Limits ────────────────────────────────────────────────────
+session:
+  max_daily_loss_pct: 5.0            # Circuit breaker: halt if daily P&L falls > X%
+  max_daily_loss_inr: 25000          # Hard INR daily loss limit
+  max_daily_trades: 20               # Safety cap on number of trades per day
+
+# ── Greek Limits ──────────────────────────────────────────────────────────────
+greeks:
+  max_position_delta: 0.60           # Single option position delta cap
+  max_portfolio_delta: 50            # Net portfolio delta cap
+  max_vega_per_position: 2000        # Single position vega cap
+  theta_target_range:
+    min: -3000                       # Prefer position generating < 3000 INR/day decay
+    max: 0
+
+# ── Expiry Day Rules ──────────────────────────────────────────────────────────
+expiry_day:
+  enhanced_monitoring: true          # Increase monitoring frequency
+  reduce_position_by_pct: 50        # Reduce open position size by 50% before expiry
+  close_all_by_time: "14:30"        # Force-close all positional positions by 14:30 IST
+  allow_0dte_strategies: [vwap_momentum]  # Only these strategies allowed on expiry day
+
+# ── Stop-Loss Policy ──────────────────────────────────────────────────────────
+stop_loss:
+  individual_trade_sl_pct: 50        # Exit if individual trade loses > 50% of premium
+  trailing_sl_enabled: true
+  trailing_sl_trigger_profit_pct: 30 # Activate trailing SL after 30% profit
+  trailing_sl_trail_pct: 15          # Trail by 15% of peak profit

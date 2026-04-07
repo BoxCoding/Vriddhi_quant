@@ -1,0 +1,89 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# Strategy Configuration — enable/disable strategies and tune their parameters
+# ══════════════════════════════════════════════════════════════════════════════
+
+strategies:
+
+  iron_condor:
+    enabled: true
+    underlyings: [NIFTY, BANKNIFTY]
+    # Strike selection (distance from ATM in points)
+    short_leg_offset: 100          # Points away from ATM for short strikes
+    long_leg_offset: 200           # Points away from ATM for long strikes (wing protection)
+    # Entry conditions
+    min_iv_rank: 50                # Enter only if IV rank > 50 (high-IV environment)
+    max_vix: 20                    # Don't enter if India VIX > 20
+    min_dte: 7                     # Minimum days-to-expiry at entry
+    max_dte: 21                    # Maximum days-to-expiry at entry
+    # Exit conditions
+    profit_target_pct: 50          # Exit at 50% of max profit
+    stop_loss_pct: 200             # Exit at 200% of credit received (2× credit)
+    delta_stop: 0.30               # Exit short leg if delta exceeds this
+
+  bull_call_spread:
+    enabled: true
+    underlyings: [NIFTY, BANKNIFTY]
+    long_leg_offset: 0             # ATM long call
+    short_leg_offset: 100          # 100 pts OTM short call
+    min_rsi: 50                    # RSI must be > 50 (bullish momentum)
+    max_iv_rank: 60                # Avoid buying in very high IV
+    min_dte: 5
+    max_dte: 30
+    profit_target_pct: 75
+    stop_loss_pct: 50              # Stop if premium falls by 50%
+
+  bear_put_spread:
+    enabled: true
+    underlyings: [NIFTY, BANKNIFTY]
+    long_leg_offset: 0             # ATM long put
+    short_leg_offset: 100          # 100 pts OTM short put
+    max_rsi: 50                    # RSI must be < 50 (bearish momentum)
+    max_iv_rank: 60
+    min_dte: 5
+    max_dte: 30
+    profit_target_pct: 75
+    stop_loss_pct: 50
+
+  short_straddle:
+    enabled: false                 # Disabled by default — unlimited risk!
+    underlyings: [NIFTY]
+    min_iv_rank: 70                # Only sell in extreme IV environments
+    max_vix: 25
+    min_dte: 5
+    max_dte: 14
+    profit_target_pct: 40
+    delta_stop: 0.25
+
+  short_strangle:
+    enabled: false
+    underlyings: [NIFTY, BANKNIFTY]
+    short_leg_offset: 150
+    min_iv_rank: 65
+    min_dte: 7
+    max_dte: 21
+    profit_target_pct: 50
+    delta_stop: 0.25
+
+  vwap_momentum:
+    enabled: true
+    underlyings: [NIFTY, BANKNIFTY]
+    timeframe: 5m                  # Signal timeframe
+    min_volume_ratio: 1.5          # Current volume must be 1.5× avg volume
+    min_dte: 0                     # Intraday only (0 DTE allowed)
+    max_dte: 5
+    profit_target_pct: 100         # Double the premium
+    stop_loss_pct: 50
+
+# ── Signal Filters ────────────────────────────────────────────────────────────
+signal_filters:
+  require_llm_confirmation: true   # All signals require Gemini LLM review
+  min_llm_confidence: 60          # Min LLM confidence score (0-100)
+  max_signals_per_day: 10         # Safety cap on signal generation
+
+# ── Scheduling ────────────────────────────────────────────────────────────────
+scheduling:
+  pre_market_warmup_time: "08:45"  # IST — fetch data before market open
+  strategy_eval_interval_min: 15  # Re-evaluate strategies every 15 minutes
+  eod_report_time: "15:45"        # IST — end-of-day analytics report
+  market_open: "09:15"
+  market_close: "15:30"

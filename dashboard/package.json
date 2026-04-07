@@ -1,0 +1,23 @@
+{
+  "name": "nse-options-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite --port 5173",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "recharts": "^2.12.7",
+    "@tanstack/react-query": "^5.45.0",
+    "axios": "^1.7.2",
+    "lucide-react": "^0.395.0",
+    "date-fns": "^3.6.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.3.1"
+  }
+}
