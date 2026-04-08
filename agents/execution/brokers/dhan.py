@@ -250,9 +250,9 @@ class DhanBroker:
         """Fetch option chain for given underlying security ID and expiry."""
         try:
             response = await self._run(
-                self._client.get_option_chain,
-                under_sec_id=under_sec_id,
-                under_exch_seg="IDX_I",
+                self._client.option_chain,
+                under_security_id=under_sec_id,
+                under_exchange_segment="IDX_I",
                 expiry=expiry,
             )
             return response

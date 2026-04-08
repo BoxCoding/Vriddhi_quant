@@ -1,0 +1,33 @@
+{
+  "title": "NSE Options Trader Overview",
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Live PnL",
+      "targets": [
+        {
+          "expr": "trader_live_pnl_inr",
+          "legendFormat": "INR"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Sharpe Ratio",
+      "targets": [
+        {
+          "expr": "trader_sharpe_ratio"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "LLM Inference Latency",
+      "targets": [
+        {
+          "expr": "rate(llm_inference_duration_seconds_sum[1m]) / rate(llm_inference_duration_seconds_count[1m])",
+        }
+      ]
+    }
+  ]
+}

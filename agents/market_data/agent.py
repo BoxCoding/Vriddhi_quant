@@ -111,10 +111,10 @@ class MarketDataAgent(BaseAgent):
                     client_id=settings.dhan.client_id,
                     access_token=settings.dhan.access_token,
                     instruments=subscribe_list,
-                    subscription_code=marketfeed.Full,
-                    on_message=on_message,
-                    on_close=on_close,
+                    version='v2'  # Use v2 for latest WebSocket
                 )
+                feed.on_ticks = on_message
+                feed.on_close = on_close
                 # Run WebSocket in thread pool (blocking call)
                 loop = asyncio.get_event_loop()
                 await loop.run_in_executor(None, feed.run_forever)
@@ -183,9 +183,9 @@ class MarketDataAgent(BaseAgent):
             loop = asyncio.get_event_loop()
             raw = await loop.run_in_executor(
                 None,
-                lambda: self._dhan.get_option_chain(
-                    under_sec_id=DHAN_SECURITY_IDS[underlying],  # "13" for NIFTY
-                    under_exch_seg="IDX_I",
+                lambda: self._dhan.option_chain(
+                    under_security_id=DHAN_SECURITY_IDS[underlying],
+                    under_exchange_segment="IDX_I",
                     expiry=expiry_str,
                 ),
             )

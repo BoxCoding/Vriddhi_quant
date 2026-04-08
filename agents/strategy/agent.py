@@ -26,6 +26,7 @@ import google.generativeai as genai
 from langgraph.graph import END, StateGraph
 
 from agents.base_agent import BaseAgent
+from core.llm_router import llm_router
 from agents.strategy.strategies.base_strategy import BaseStrategy
 from agents.strategy.strategies.iron_condor import IronCondorStrategy
 from agents.strategy.strategies.spreads import BearPutSpreadStrategy, BullCallSpreadStrategy
@@ -128,11 +129,7 @@ Respond ONLY in the following JSON format, no other text:
 }}"""
 
     try:
-        response = await asyncio.get_event_loop().run_in_executor(
-            None,
-            lambda: model.generate_content(prompt),
-        )
-        raw = response.text.strip()
+        raw = await llm_router.get_deep_reasoning(prompt)
 
         # Strip markdown code fences if present
         if raw.startswith("```"):
@@ -219,23 +216,9 @@ class StrategyAgent(BaseAgent):
 
     def __init__(self) -> None:
         super().__init__()
-        self._gemini_model = self._init_gemini()
         self._graph = self._build_graph()
         # Throttle: re-evaluate each underlying at most every N seconds
         self._last_run: Dict[str, datetime] = {}
-
-    def _init_gemini(self):
-        """Initialise Google Gemini model."""
-        genai.configure(api_key=settings.gemini.api_key)
-        model = genai.GenerativeModel(
-            model_name=settings.gemini.model,
-            generation_config=genai.types.GenerationConfig(
-                temperature=settings.gemini.temperature,
-                max_output_tokens=settings.gemini.max_tokens,
-            ),
-        )
-        self.logger.info("Gemini model %s initialised", settings.gemini.model)
-        return model
 
     def _build_graph(self) -> Any:
         """Build the LangGraph StateGraph for strategy selection."""
@@ -245,7 +228,7 @@ class StrategyAgent(BaseAgent):
         graph.add_node(
             "llm_strategy_selection",
             lambda state: asyncio.get_event_loop().run_until_complete(
-                node_llm_strategy_selection(state, self._gemini_model)
+                node_llm_strategy_selection(state, None)
             ),
         )
         graph.add_node("signal_generation", node_signal_generation)

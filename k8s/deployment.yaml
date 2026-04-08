@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nse-options-trader
+  labels:
+    app: nse-options-trader
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nse-options-trader
+  template:
+    metadata:
+      labels:
+        app: nse-options-trader
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+    spec:
+      containers:
+      - name: orchestrator
+        image: nse-options-trader:latest
+        imagePullPolicy: IfNotPresent
+        command: ["python", "-m", "agents.orchestrator.agent"]
+        envFrom:
+        - secretRef:
+            name: trader-secrets
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-server
+  labels:
+    app: fastapi-server
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fastapi-server
+  template:
+    metadata:
+      labels:
+        app: fastapi-server
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+    spec:
+      containers:
+      - name: api
+        image: nse-options-trader:latest
+        command: ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - secretRef:
+            name: trader-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fastapi-server-svc
+spec:
+  selector:
+    app: fastapi-server
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000

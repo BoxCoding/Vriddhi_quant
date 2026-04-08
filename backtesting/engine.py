@@ -80,6 +80,7 @@ class BacktestEngine:
         max_risk_per_trade_pct: float = 0.02,
         commission_per_order: float = 20.0,
         slippage_bps: float = 5.0,
+        slippage_model: str = "fixed",
         data_dir: str = "data/historical",
     ) -> None:
         self._initial_capital = capital
@@ -87,6 +88,7 @@ class BacktestEngine:
         self._max_risk_pct = max_risk_per_trade_pct
         self._commission = commission_per_order
         self._slippage_bps = slippage_bps
+        self._slippage_model = slippage_model
         self._loader = DataLoader(data_dir=data_dir)
         self._trades: List[BacktestTrade] = []
         self._equity_curve: List[float] = [capital]
@@ -100,6 +102,7 @@ class BacktestEngine:
         strategy_fn: Any,
         timeframe: str = "5m",
         use_synthetic: bool = True,
+        simulate_ticks: bool = False,
     ) -> BacktestResult:
         """
         Run a backtest.
@@ -138,6 +141,16 @@ class BacktestEngine:
 
         # Bar-by-bar replay
         for idx, row in df.iterrows():
+            if simulate_ticks:
+                # Stub: Create 4 synthetic ticks from OHLC and process them sequentially
+                ticks = [
+                    {"timestamp": row["timestamp"], "price": row["open"]},
+                    {"timestamp": row["timestamp"], "price": row["high"]},
+                    {"timestamp": row["timestamp"], "price": row["low"]},
+                    {"timestamp": row["timestamp"], "price": row["close"]},
+                ]
+                # In full implementation, pass ticks to tick-level logic
+            
             signal = strategy_fn(row, state)
             if signal is None:
                 continue
@@ -162,10 +175,17 @@ class BacktestEngine:
 
     # ── Trade management ──────────────────────────────────────────────────────
 
+    def _get_dynamic_slippage(self, row: Any) -> float:
+        if self._slippage_model == "dynamic" and "high" in row and "low" in row:
+            spread_factor = (row["high"] - row["low"]) / row["close"]
+            return max(self._slippage_bps, self._slippage_bps * spread_factor * 100)
+        return self._slippage_bps
+
     def _open_trade(self, row: Any, state: Dict, side: str, signal: Dict) -> None:
         self._trade_counter += 1
         qty = signal.get("quantity", 50)  # Default 1 lot NIFTY
-        entry_price = row["close"] * (1 + self._slippage_bps / 10000)
+        effective_slippage = self._get_dynamic_slippage(row)
+        entry_price = row["close"] * (1 + effective_slippage / 10000)
         cost = self._commission
 
         trade = BacktestTrade(
@@ -182,7 +202,8 @@ class BacktestEngine:
 
     def _close_trade(self, row: Any, state: Dict) -> None:
         trade: BacktestTrade = state["position"]
-        exit_price = row["close"] * (1 - self._slippage_bps / 10000)
+        effective_slippage = self._get_dynamic_slippage(row)
+        exit_price = row["close"] * (1 - effective_slippage / 10000)
         trade.exit_price = exit_price
         trade.exit_time = row["timestamp"]
         trade.is_open = False

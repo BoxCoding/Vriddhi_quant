@@ -23,6 +23,10 @@ from agents.market_data.agent import MarketDataAgent
 from agents.order_manager.agent import OrderManagerAgent
 from agents.risk_management.agent import RiskManagementAgent
 from agents.strategy.agent import StrategyAgent
+from agents.feature_engineering.agent import FeatureEngineeringAgent
+from agents.order_flow_analysis.agent import OrderFlowAnalysisAgent
+from agents.market_regime.agent import MarketRegimeAgent
+from agents.hedging.agent import HedgingAgent
 from core.config import settings
 from core.enums import EventType
 from core.models import Event
@@ -48,9 +52,13 @@ class Orchestrator:
     def __init__(self) -> None:
         self._agents = {
             "market_data": MarketDataAgent(),
+            "feature_engineering": FeatureEngineeringAgent(),
+            "order_flow_analysis": OrderFlowAnalysisAgent(),
+            "market_regime": MarketRegimeAgent(),
             "greeks_engine": GreeksEngineAgent(),
             "strategy": StrategyAgent(),
             "risk_management": RiskManagementAgent(),
+            "hedging": HedgingAgent(),
             "execution": ExecutionAgent(),
             "order_manager": OrderManagerAgent(),
             "analytics": AnalyticsAgent(),

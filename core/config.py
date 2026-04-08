@@ -27,6 +27,15 @@ class GeminiConfig(BaseSettings):
     max_tokens: int = 8192
 
 
+class OllamaConfig(BaseSettings):
+    """Local Ollama LLM configuration for low-latency tasks."""
+    model_config = SettingsConfigDict(env_prefix="OLLAMA_", env_file=".env", extra="ignore")
+
+    base_url: str = "http://localhost:11434"
+    model: str = "llama3"
+    temperature: float = 0.1
+
+
 class RedisConfig(BaseSettings):
     """Redis connection config (used as event bus + cache)."""
     model_config = SettingsConfigDict(env_prefix="REDIS_", env_file=".env", extra="ignore")
@@ -139,6 +148,7 @@ class Settings:
         self.app = AppConfig()
         self.dhan = DhanConfig()
         self.gemini = GeminiConfig()
+        self.ollama = OllamaConfig()
         self.redis = RedisConfig()
         self.db = DatabaseConfig()
         self.risk = RiskConfig()
